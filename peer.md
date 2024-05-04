@@ -1,7 +1,7 @@
 To: jye130@syr.edu, kkmicins@syr.edu
 Subject: CIS352 P5 Peer Assessment 
 
-Your Name: 
+Your Name: Isaiah Hollensworth 
 Your Groupmates (up to 2): 
 Andrew Scerbo
 ________________
