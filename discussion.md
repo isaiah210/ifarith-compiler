@@ -27,6 +27,8 @@ especially how it is different than x86: what are the pros and cons of
 using ir-virtual as a representation? You can get the compiler to to
 compile ir-virtual files like so: 
 
+Ir-virtual and the test made for the code is to take reelativily simple psuedocode that ccan then be translated into assembly/machine code. Since ir-virtual can compile into x86. This can lead to creating code with minial changes to initial code.  This is an esay way of generating x86 code with out the hassle of of learning athe complexity of assembly.  It also helps you with debugging from a higher level rather than straight into the grit. Some cons I can see is lacking the understanding of what is totally going on in the assembly langauge.  It looks way more complicated then the psuedo code itself and it is easy to get lost while looking at the translation.  Also with translation there may even be mistakes when translation occurs and breaks the system
+
 racket compiler.rkt -v test-programs/sum1.irv 
 
 (Also pass in -m for Mac)
