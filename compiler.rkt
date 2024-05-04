@@ -130,10 +130,13 @@
     ;; 0-binding case
     [`(let* () ,e) 'todo]
     ;; 1+-binding case
+    [`(let* () ,e) (ifarith->ifarith-tiny e)]
     [`(let* ([,(? symbol? x0) ,e0]) ,e-body)
-     'todo]
-    [`(let* ([,(? symbol? x0) ,e0] ,rest-binding-pairs ...) ,e-body)
-     'todo]
+      `(let ([,x0 ,e0]) ,(ifarith->ifarith-tiny e-body))]
+    ;; multiple bindings
+    [`(let* ([,(? symbol? x0) ,e0] ,@rest-binding-pairs) ,e-body)
+     `(let ([,x0 ,e0])
+       ,(ifarith->ifarith-tiny `(let* (,@rest-binding-pairs) ,e-body)))]
     ;; print an arbitrary expression (must be a number at runtime)
     [`(print ,_) e]
     ;; and/or, with short-circuiting semantics
