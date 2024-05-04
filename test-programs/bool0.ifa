@@ -1,3 +1,3 @@
-(let* ([a #t]
-       [b #f])
+(let* ([a true]
+       [b false])
   (print a))
