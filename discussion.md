@@ -27,8 +27,7 @@ especially how it is different than x86: what are the pros and cons of
 using ir-virtual as a representation? You can get the compiler to to
 compile ir-virtual files like so: 
 
-Ir-virtual and the test made for the code is to take reelativily simple psuedocode that ccan then be translated into assembly/machine code. Since ir-virtual can compile into x86. This can lead to creating code with minial changes to initial code.  This is an esay way of generating x86 code with out the hassle of of learning athe complexity of assembly.  It also helps you with debugging from a higher level rather than straight into the grit. Some cons I can see is lacking the understanding of what is totally going on in the assembly langauge.  It looks way more complicated then the psuedo code itself and it is easy to get lost while looking at the translation.  Also with translation there may even be mistakes when translation occurs and breaks the system
-
+Ir-virtual and the test made for the code is to take relatively simple pseudocode that can then be translated into assembly/machine code. Since ir-virtual can compile into x86. This can lead to creating code with minimal changes to initial code.  This is an easy way of generating x86 code without the hassle of learning a the complexity of assembly.  It also helps you with debugging from a higher level rather than straight into the grit. Some cons I can see is lacking the understanding of what is totally going on in the assembly language.  It looks way more complicated than the pseudo code itself and it is easy to get lost while looking at the translation.  Also, with translation there may even be mistakes when translation occurs and breaks the system.
 racket compiler.rkt -v test-programs/sum1.irv 
 
 (Also pass in -m for Mac)
@@ -51,6 +50,241 @@ carefully the relevance of each of the intermediate representations.
 For this question, please add your `.ifa` programs either (a) here or
 (b) to the repo and write where they are in this file.
 
+test1:
+(let* ([x 3] [y 1]) (print (+ x y)))
+output: 
+Input source tree in IfArith:
+'(let* ((x 3) (y 1)) (print (+ x y)))
+ifarith-tiny:
+'(let ((x 3)) (let ((y 1)) (print (+ x y))))
+'(let ((x 3)) (let ((y 1)) (print (+ x y))))
+3
+'(let ((y 1)) (print (+ x y)))
+1
+'(print (+ x y))
+'(+ x y)
+'x
+'y
+anf:
+'(let ((x1262 3))
+   (let ((x x1262))
+     (let ((x1263 1))
+       (let ((y x1263)) (let ((x1264 (+ x y))) (print x1264))))))
+ir-virtual:
+'(((label lab1265) (mov-lit x1262 3))
+  ((label lab1266) (mov-reg x x1262))
+  ((label lab1267) (mov-lit x1263 1))
+  ((label lab1268) (mov-reg y x1263))
+  ((label lab1269) (mov-reg x1264 x))
+  (add x1264 y)
+  ((label lab1270) (print x1264))
+  (return 0))
+x86:
+section .data
+        int_format db "%ld",10,0
+
+
+        global _main
+        extern printf
+section .text
+
+
+_start: call main
+        mov rax, 60
+        xor rdi, rdi
+        syscall
+
+
+main:   push rbp
+        mov rbp, rsp
+        sub rsp, 80
+        mov esi, 3
+        mov [rbp-24], esi
+        mov esi, [rbp-24]
+        mov [rbp-32], esi
+        mov esi, 1
+        mov [rbp-16], esi
+        mov esi, [rbp-16]
+        mov [rbp-40], esi
+        mov esi, [rbp-32]
+        mov [rbp-8], esi
+        mov edi, [rbp-40]
+        mov eax, [rbp-8]
+        add eax, edi
+        mov [rbp-8], eax
+        mov esi, [rbp-8]
+        lea rdi, [rel int_format]
+        mov eax, 0
+        call printf
+        mov rax, 0
+        jmp finish_up
+finish_up:      add rsp, 80
+        leave
+        ret
+test2:
+(+ 3 (- 6 4))
+output:
+'(+ 3 (- 6 4))
+ifarith-tiny:
+'(+ 3 (- 6 4))
+'(+ 3 (- 6 4))
+3
+'(- 6 4)
+6
+4
+anf:
+'(let ((x1262 3))
+   (let ((x1263 6))
+     (let ((x1264 4))
+       (let ((x1265 (- x1263 x1264))) (let ((x1266 (+ x1262 x1265))) x1266)))))
+ir-virtual:
+'(((label lab1267) (mov-lit x1262 3))
+  ((label lab1268) (mov-lit x1263 6))
+  ((label lab1269) (mov-lit x1264 4))
+  ((label lab1270) (mov-reg x1265 x1263))
+  (sub x1265 x1264)
+  ((label lab1271) (mov-reg x1266 x1262))
+  (add x1266 x1265)
+  (return x1266))
+x86:
+section .data
+        int_format db "%ld",10,0
+
+
+        global _main
+        extern printf
+section .text
+
+
+_start: call main
+        mov rax, 60
+        xor rdi, rdi
+        syscall
+
+
+main:   push rbp
+        mov rbp, rsp
+        sub rsp, 80
+        mov esi, 3
+        mov [rbp-32], esi
+        mov esi, 6
+        mov [rbp-24], esi
+        mov esi, 4
+        mov [rbp-16], esi
+        mov esi, [rbp-24]
+        mov [rbp-8], esi
+        mov edi, [rbp-16]
+        mov eax, [rbp-8]
+        sub eax, edi
+        mov [rbp-8], eax
+        mov esi, [rbp-32]
+        mov [rbp-40], esi
+        mov edi, [rbp-8]
+        mov eax, [rbp-40]
+        add eax, edi
+        mov [rbp-40], eax
+        mov rax, [rbp-40]
+        jmp finish_up
+finish_up:      add rsp, 80
+        leave
+        ret
+test3:
+(if (+ 5 3)
+    (print 1)
+    (print 0))
+output:
+Input source tree in IfArith:
+'(if (+ 5 3) (print 1) (print 0))
+ifarith-tiny:
+'(if (+ 5 3) (print 1) (print 0))
+'(if (+ 5 3) (print 1) (print 0))
+'(+ 5 3)
+5
+3
+'(print 1)
+1
+'(print 0)
+0
+anf:
+'(let ((x1262 5))
+   (let ((x1263 3))
+     (let ((x1264 (+ x1262 x1263)))
+       (if x1264
+         (let ((x1265 1)) (print x1265))
+         (let ((x1266 0)) (print x1266))))))
+ir-virtual:
+'(((label lab1267) (mov-lit x1262 5))
+  ((label lab1268) (mov-lit x1263 3))
+  ((label lab1269) (mov-reg x1264 x1262))
+  (add x1264 x1263)
+  ((label lab1270) (mov-lit zero1275 0))
+  (cmp x1264 zero1275)
+  (jz lab1271)
+  (jmp lab1273)
+  ((label lab1271) (mov-lit x1265 1))
+  ((label lab1272) (print x1265))
+  (return 0)
+  ((label lab1273) (mov-lit x1266 0))
+  ((label lab1274) (print x1266))
+  (return 0))
+x86:
+section .data
+        int_format db "%ld",10,0
+
+
+        global _main
+        extern printf
+section .text
+
+
+_start: call main
+        mov rax, 60
+        xor rdi, rdi
+        syscall
+
+
+main:   push rbp
+        mov rbp, rsp
+        sub rsp, 128
+        mov esi, 5
+        mov [rbp-32], esi
+        mov esi, 3
+        mov [rbp-24], esi
+        mov esi, [rbp-32]
+        mov [rbp-16], esi
+        mov edi, [rbp-24]
+        mov eax, [rbp-16]
+        add eax, edi
+        mov [rbp-16], eax
+        mov esi, 0
+        mov [rbp-40], esi
+        mov edi, [rbp-40]
+        mov eax, [rbp-16]
+        cmp eax, edi
+        mov [rbp-16], eax
+        jz lab1271
+        jmp lab1273
+lab1271:        mov esi, 1
+        mov [rbp-8], esi
+        mov esi, [rbp-8]
+        lea rdi, [rel int_format]
+        mov eax, 0
+        call printf
+        mov rax, 0
+        jmp finish_up
+lab1273:        mov esi, 0
+        mov [rbp-64], esi
+        mov esi, [rbp-64]
+        lea rdi, [rel int_format]
+        mov eax, 0
+        call printf
+        mov rax, 0
+        jmp finish_up
+finish_up:      add rsp, 128
+        leave
+        ret
+
+For all these tests we entered a higher level let for one of the tests. THe first thing we see the compiler do is that the conversion of ifarith to tiny.  This is done through that function call. We are able to see that it goes through each input with one and another. First done is when it reads the 3 in let and the it reads 1.  It then goes through the print then the addition.  In the addition it reads and seperates the x and y in the process.  It then converts it into anf where we can see that the operations being done one by one in the correct order.  Then it become ir-virtial code where it is using the simplified assembly to create in IRV to then convert it to x86.  It then shows the code in x86.
 [ Question 3 ] 
 
 Describe each of the passes of the compiler in a slight degree of
@@ -63,6 +297,7 @@ there could be more?
 In answering this question, you must use specific examples that you
 got from running the compiler and generating an output.
 
+The first thing that is done when the compiler is called is a check if what ever is inputed is valid. It breaks down everything inside of the code it was given breaking down each of the calls and the vairblees in it until there is nothing left.  Once that is reached then everything is true and then it goes to the anf translation. this translates the order and adress of what each value being accesed and what is being used for. It starts with the varibile and then goes to the function calls at the end.  After it reaches the ir-virtual translation where the you can see the initial call in the values with the mov-lit and the addresses they are getting put. All of the simplied assembly is being written and ordered.  After this it reaches the final step and creates the x86 assembly code.
 [ Question 4 ] 
 
 This is a larger project, compared to our previous projects. This
