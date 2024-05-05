@@ -297,7 +297,7 @@ there could be more?
 In answering this question, you must use specific examples that you
 got from running the compiler and generating an output.
 
-The first thing that is done when the compiler is called is a check if what ever is inputed is valid. It breaks down everything inside of the code it was given breaking down each of the calls and the vairblees in it until there is nothing left.  Once that is reached then everything is true and then it goes to the anf translation. this translates the order and adress of what each value being accesed and what is being used for. It starts with the varibile and then goes to the function calls at the end.  After it reaches the ir-virtual translation where the you can see the initial call in the values with the mov-lit and the addresses they are getting put. All of the simplied assembly is being written and ordered.  After this it reaches the final step and creates the x86 assembly code.
+The first thing that is done when the compiler is called is a check if what ever is inputed is valid. It breaks down everything inside of the code it was given breaking down each of the calls and the vairblees in it until there is nothing left.  Once that is reached then everything is true and then it goes to the anf translation. This translates the order and address of what each value being accessed and what is being used for. This is done through let-bindings, which are used for the next translation. It starts with the variable and then goes to the function calls at the end.  After it reaches the ir-virtual translation where you can see the initial call in the values with the mov-lit and the addresses they are getting put. All of the simplified assembly is being written and ordered. This looks a lot like the IRV test we have made for translation. After this it reaches the final step and creates the x86 assembly code.
 [ Question 4 ] 
 
 This is a larger project, compared to our previous projects. This
@@ -325,6 +325,14 @@ ask me.
 
 Your team will receive a small bonus for being the first team to
 report a unique bug (unique determined by me).
+
+The bug I found was in my test case:
+(let* ([a true]
+       [b false])
+       (cond [(and a b) (print 1)]
+             [(or a b) (print 2)]
+             [else (print 0)]))
+When entered it says that there is no match clause for the b, which I am assuming is in the first Cond that contains and.  When looking at the code for the Cond in the ifarith->ifarith-tiny, I could see that in the condition it only looks at if it is just true and false.  It should be looking at into the first parameter and see if it needs to be broken down more than what it is.  This would be down by recursion because based on what the matching looks like there is only recursion down on the rest of the list of Conds. It makes the conds into if statements and does not even pass itself as (and a b), so it does not know if there is a true and false because there is no matching clause for it.
 
 [ High Level Reflection ] 
 

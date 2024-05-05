@@ -1,0 +1,5 @@
+(let* ([a true]
+       [b false])
+       (cond [(and a b) (print 1)]
+             [(or a b) (print 2)]
+             [else (print 0)]))
