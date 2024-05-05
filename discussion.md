@@ -344,3 +344,4 @@ nuts and bolts of code, try to use this experience as a way to think
 about how you would approach doing group code critique. What would you
 do differently next time, what did you learn?
 
+I learned how code, even psuedocode can be interpreted and soon changed into assembly.  CIS 341 introduced us to x86 already but actually seeing the code go from one to another seemed really cool. It was hard finding a bug in the code in general.  In other courses when looking at different at code it either work or it did not.  This code it seemed like it worked no matter what but that was not the case.  It is hard to try to destroy something that is working.  We were able to do it fine but just the proccess of where to start was difficult.  I learned a lot about how to approach code and how to read it.  Being able to read code and understand what is going one is important espiaclly in the future where not all the code you edit is not written by you.
